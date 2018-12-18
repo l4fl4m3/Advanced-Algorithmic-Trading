@@ -5,6 +5,12 @@ import numpy as np
 import pandas as pd
 import pandas_datareader as pdr
 from pykalman import KalmanFilter
+from tiingo import TiingoClient
+
+config = {}
+config['api_key'] = "e0bfdb5e495af37230727b39999895a7bc45259d"
+client = TiingoClient(config)
+
 
 
 def draw_date_coloured_scatterplot(etfs, prices):
@@ -85,12 +91,13 @@ if __name__ == "__main__":
     start_date = "2010-8-01"
     end_date = "2016-08-01"
     
-    # Obtain the adjusted closing prices from Yahoo finance
-    etf_df1 = pdr.get_data_yahoo(etfs[0], start_date, end_date)
-    etf_df2 = pdr.get_data_yahoo(etfs[1], start_date, end_date)
+    # Obtain the adjusted closing prices from Yahoo Tiingo
+    etf_df1 = client.get_dataframe(etfs[0], startDate=start_date, endDate=end_date)
+    etf_df2 = client.get_dataframe(etfs[1], startDate=start_date, endDate=end_date)
+    print(etf_df1)
     prices = pd.DataFrame(index=etf_df1.index)
-    prices[etfs[0]] = etf_df1["Adj Close"]
-    prices[etfs[1]] = etf_df2["Adj Close"]
+    prices[etfs[0]] = etf_df1["adjClose"]
+    prices[etfs[1]] = etf_df2["adjClose"]
 
     draw_date_coloured_scatterplot(etfs, prices)
     state_means, state_covs = calc_slope_intercept_kalman(etfs, prices)
